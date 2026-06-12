@@ -55,5 +55,6 @@ npx serve .        # or push to GitHub Pages / any static host
   the `findByProps` / `findByName` / `instead` / `after` helpers are equivalent.
 - This only affects **your** client. It does not change what other people see.
 - Module names in Discord can change between updates. If decorations reappear
+
   after a Discord update, the `findByProps`/`findByName` targets may need
   refreshing.
