@@ -1,7 +1,59 @@
-# Vendetta Plugins Template
-This repo contains a template for creating [Vendetta](https://github.com/vendetta-mod/Vendetta) plugins.
+# NoAvatarDecorations
 
-# How to install?
-Paste a plugin URL into the Plugins page of Vendetta, following a basic format of:
+A plugin for **Revenge** (the Discord mobile client mod, also compatible with
+Vendetta / Bunny) that hides **avatar decorations** — the cosmetic frames
+Discord renders around avatars — everywhere in the app.
 
-https://`YOUR_GITHUB_USERNAME`.github.io/`REPO_NAME`/`PLUGIN_NAME`
+## How it works
+
+The plugin neutralizes every known place a decoration is resolved or drawn:
+
+1. **URL resolvers** — patches `getAvatarDecorationURL` /
+   `getUserAvatarDecorationURL` to return `null`, so surfaces that request the
+   asset URL get nothing to draw.
+2. **User data** — strips `avatarDecorationData` off user records as they pass
+   through the `UserStore`, for components that read it directly.
+3. **Render component** — forces the `AvatarDecoration` render component to
+   render nothing as a final fallback.
+
+All patches are reverted in `onUnload`, so disabling the plugin restores
+decorations immediately (no restart needed).
+
+## Installing the source
+
+Revenge plugins are loaded from a URL that serves a built `dist/` bundle plus a
+`manifest.json`. This repo ships the **source**; you build it, host the output,
+and add that URL in Revenge.
+
+### Build with the official plugin template
+
+The easiest path is the standard Vendetta/Revenge plugin template (esbuild +
+a resolver that maps `@vendetta/*` imports to the in-app `vendetta` global):
+
+```bash
+# 1. Grab a plugin template (e.g. the Vendetta plugin template) and drop
+#    src/index.ts + manifest.json into it.
+# 2. Install deps and build:
+npm install
+npm run build      # produces dist/index.js
+# 3. Serve the folder (manifest.json must point main -> dist/index.js):
+npx serve .        # or push to GitHub Pages / any static host
+```
+
+### Load in Revenge
+
+1. Open **Revenge → Settings → Plugins**.
+2. Tap the **+** (add) button.
+3. Paste the URL to the folder that contains your `manifest.json`.
+4. Enable the plugin.
+
+## Notes
+
+- Uses the `@vendetta` API namespace for maximum compatibility across Revenge,
+  Bunny, and Vendetta. If you target a build that only exposes
+  `@revenge-mod/*`, swap the two import lines in `src/index.ts` accordingly —
+  the `findByProps` / `findByName` / `instead` / `after` helpers are equivalent.
+- This only affects **your** client. It does not change what other people see.
+- Module names in Discord can change between updates. If decorations reappear
+  after a Discord update, the `findByProps`/`findByName` targets may need
+  refreshing.
