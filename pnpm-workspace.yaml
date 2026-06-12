@@ -4,3 +4,8 @@ packages:
   onlyBuiltDependencies:
   - "@swc/core"
   - esbuild
+
+peerDependencyRules:
+  ignoreMissing:
+    - react
+    - react-native
